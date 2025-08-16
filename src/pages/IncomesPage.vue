@@ -9,7 +9,7 @@
     <!-- Таблица -->
     <n-data-table
       :columns="columns" 
-      :data="incomes"
+      :data="pagedIncomes"
       :pagination="false" 
     />
 
@@ -28,14 +28,16 @@ import { getIncomes } from '../api/incomes';
 import { NDataTable, NDatePicker, NSpace, NPagination } from 'naive-ui';
 import  LineChart  from '../components/LineChart.vue';
 import dayjs from 'dayjs';
+import { MAX_API_DATE, MIN_API_DATE } from '../const/api';
 
 export default {
   components: { NDataTable, NDatePicker, NSpace, NPagination, LineChart },
   setup() {
-    const incomes = ref([]);
+    const pagedIncomes = ref([]); // for table
+    const totalIncomes = ref([]); // for chart
     const dateFilter = ref([
-      new Date('2023-01-01'),
-      new Date('2025-01-01'),
+      new Date(MIN_API_DATE),
+      new Date(MAX_API_DATE),
     ]);
 
     const currentPage = ref(1);
@@ -53,7 +55,7 @@ export default {
     ];
 
 
-    const fetchIncomes = async () => {
+    const fetchPagedIncomes = async () => {
       const [start, end] = dateFilter.value || [];
       const result = await getIncomes({
         page: currentPage.value,
@@ -61,34 +63,43 @@ export default {
         dateFrom: start ? dayjs(start).format('YYYY-MM-DD') : undefined,
         dateTo: end ? dayjs(end).format('YYYY-MM-DD') : undefined,
       })
-      incomes.value = result.data;
+      pagedIncomes.value = result.data;
       pageCount.value = result.meta.last_page;
+    }
+
+    const fetchTotalIncomes = async () => {
+      const result = await getIncomes({
+        dateFrom: dayjs(MIN_API_DATE).format('YYYY-MM-DD'),
+        dateTo: dayjs(MAX_API_DATE).format('YYYY-MM-DD'),
+      })
+      totalIncomes.value = result.data;
     }
 
     onMounted(async () => {
       if(dateFilter.value){
-        await fetchIncomes();
+        await fetchPagedIncomes();
+        await fetchTotalIncomes();
       }
     });
 
     // TODO: deduplicate queries via pinia query 
     watch([dateFilter, currentPage], async () => {
-      await fetchIncomes();
+      await fetchPagedIncomes();
     })
 
     const chartData = computed(() => ({
-      labels: incomes.value.map(i => i.date),
+      labels: totalIncomes.value.map(i => i.date),
       datasets: [
         {
           label: 'Количество',
-          data: incomes.value.map(i => Number(i.quantity)), // total_price из API
+          data: totalIncomes.value.map(i => Number(i.quantity)), // total_price из API
           borderColor: '#3b82f6',
           backgroundColor: '#93c5fd',
         },
       ],
     }));
 
-    return { dateFilter, columns, incomes, currentPage, pageCount, pageSize, chartData };
+    return { dateFilter, columns, totalIncomes, pagedIncomes, currentPage, pageCount, pageSize, chartData };
   },
 };
 </script>

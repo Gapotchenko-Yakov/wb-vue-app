@@ -47,19 +47,20 @@
   </n-space>
 </template>
 
-<script>
+<script lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
 import { getIncomes } from '../api/incomes';
 import { NDataTable, NDatePicker, NSpace, NPagination, NInput } from 'naive-ui';
 import  LineChart  from '../components/LineChart.vue';
 import dayjs from 'dayjs';
 import { MAX_API_DATE, MIN_API_DATE } from '../const/api';
+import type { Income } from '../api/types';
 
 export default {
   components: { NDataTable, NDatePicker, NSpace, NPagination, NInput, LineChart },
   setup() {
-    const pagedIncomes = ref([]); // for table
-    const totalIncomes = ref([]); // for chart
+    const pagedIncomes = ref<Income[]>([]); // for table
+    const totalIncomes = ref<Income[]>([]); // for chart
     const dateFilter = ref([
       new Date(MIN_API_DATE),
       new Date(MAX_API_DATE),
@@ -73,7 +74,7 @@ export default {
     })
 
     const filteredIncomes = computed(() => {
-      return pagedIncomes.value.filter((item) => {
+      return pagedIncomes.value.filter((item: Income) => {
         return (!filters.value.supplier_article || item.supplier_article.includes(filters.value.supplier_article))
           && (!filters.value.warehouse_name || item.warehouse_name.includes(filters.value.warehouse_name))
           && (!filters.value.barcode || item.barcode.includes(filters.value.barcode))

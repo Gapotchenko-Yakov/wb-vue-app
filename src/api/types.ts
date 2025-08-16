@@ -104,3 +104,13 @@ export interface Stock {
     price: string;
     discount: string;
 }
+
+export interface FilterField {
+    code: string;
+    type: 'text' | 'number' | 'date' | 'textarea';
+    placeholder?: string;
+    clearable?: boolean;
+    defaultValue?: string | number;
+}
+
+export type FilterFields = FilterField[];

@@ -3,13 +3,38 @@
     <!-- Фильтр по дате -->
     <n-date-picker v-model:value="dateFilter" type="daterange" placeholder="Выберите дату" />
 
+    <n-space vertical >
+      <!-- Фильтры -->
+        <n-input
+          v-model:value="filters.supplier_article"
+          placeholder="Товар"
+          clearable
+        />
+        <n-input
+          v-model:value="filters.warehouse_name"
+          placeholder="Склад"
+          clearable
+        />
+        <n-input
+          v-model:value="filters.barcode"
+          placeholder="Штрихкод"
+          clearable
+        />
+        <n-input
+          v-model:value="filters.total_price"
+          placeholder="Сумма"
+          type="number"
+          clearable
+        />
+    </n-space>
+
     <!-- График -->
     <LineChart v-if="chartData" :chart-data="chartData" />
 
     <!-- Таблица -->
     <n-data-table
       :columns="columns" 
-      :data="pagedIncomes"
+      :data="filteredIncomes"
       :pagination="false" 
     />
 
@@ -25,13 +50,13 @@
 <script>
 import { ref, onMounted, computed, watch } from 'vue';
 import { getIncomes } from '../api/incomes';
-import { NDataTable, NDatePicker, NSpace, NPagination } from 'naive-ui';
+import { NDataTable, NDatePicker, NSpace, NPagination, NInput } from 'naive-ui';
 import  LineChart  from '../components/LineChart.vue';
 import dayjs from 'dayjs';
 import { MAX_API_DATE, MIN_API_DATE } from '../const/api';
 
 export default {
-  components: { NDataTable, NDatePicker, NSpace, NPagination, LineChart },
+  components: { NDataTable, NDatePicker, NSpace, NPagination, NInput, LineChart },
   setup() {
     const pagedIncomes = ref([]); // for table
     const totalIncomes = ref([]); // for chart
@@ -39,6 +64,22 @@ export default {
       new Date(MIN_API_DATE),
       new Date(MAX_API_DATE),
     ]);
+
+    const filters = ref({
+      supplier_article: '',
+      warehouse_name: '',
+      barcode: '',
+      total_price: '',
+    })
+
+    const filteredIncomes = computed(() => {
+      return pagedIncomes.value.filter((item) => {
+        return (!filters.value.supplier_article || item.supplier_article.includes(filters.value.supplier_article))
+          && (!filters.value.warehouse_name || item.warehouse_name.includes(filters.value.warehouse_name))
+          && (!filters.value.barcode || item.barcode.includes(filters.value.barcode))
+          && (!filters.value.total_price || item.total_price === Number(filters.value.total_price))
+        })
+    })
 
     const currentPage = ref(1);
     const pageSize = ref(10);
@@ -99,7 +140,18 @@ export default {
       ],
     }));
 
-    return { dateFilter, columns, totalIncomes, pagedIncomes, currentPage, pageCount, pageSize, chartData };
+    return { 
+      dateFilter, 
+      columns, 
+      totalIncomes, 
+      pagedIncomes, 
+      currentPage, 
+      pageCount, 
+      pageSize, 
+      chartData,
+      filters,
+      filteredIncomes,
+    };
   },
 };
 </script>

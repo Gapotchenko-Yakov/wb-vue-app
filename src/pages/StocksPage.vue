@@ -46,13 +46,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
 import dayjs from 'dayjs';
-import { NDataTable, NDatePicker, NSpace, NPagination, NInput, NInputNumber } from 'naive-ui';
-import LineChart from '../components/LineChart.vue';
+import { NDataTable, NInput, NPagination, NSpace } from 'naive-ui';
+import { computed, onMounted, ref, watch } from 'vue';
 import { getStocks } from '../api/stocks';
-import { MAX_API_DATE, MIN_API_DATE } from '../const/api';
 import type { Stock } from '../api/types';
+import LineChart from '../components/LineChart.vue';
 
 const pagedStocks = ref<Stock[]>([]); // for table
 const totalStocks = ref<Stock[]>([]); // for chart

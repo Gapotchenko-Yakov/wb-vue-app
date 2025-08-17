@@ -49,13 +49,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
 import dayjs from 'dayjs';
-import { NDataTable, NDatePicker, NSpace, NPagination, NInput, NInputNumber } from 'naive-ui';
-import LineChart from '../components/LineChart.vue';
+import { NDataTable, NDatePicker, NInput, NPagination, NSpace } from 'naive-ui';
+import { computed, onMounted, ref, watch } from 'vue';
 import { getIncomes } from '../api/incomes';
-import { MAX_API_DATE, MIN_API_DATE } from '../const/api';
 import type { Income } from '../api/types';
+import LineChart from '../components/LineChart.vue';
+import { MAX_API_DATE, MIN_API_DATE } from '../const/api';
 
 const pagedIncomes = ref<Income[]>([]); // for table
 const totalIncomes = ref<Income[]>([]); // for chart

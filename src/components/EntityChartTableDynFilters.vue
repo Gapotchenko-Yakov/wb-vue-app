@@ -9,17 +9,16 @@
     <n-space vertical >
       <!-- Фильтры -->
        <template v-for="filter in filterFields" :key="filter.code">
-        <n-input-number
+        <!-- <n-input-number
           v-model:value="filters[filter.code]"
           :placeholder="filter.placeholder"
           :clearable="filter.clearable"
           v-if="filter.type === 'number'"
-        />
+        /> -->
         <n-input
           v-model:value="filters[filter.code]"
           :placeholder="filter.placeholder"
           :clearable="filter.clearable"
-          v-else
         />
         </template>
         <!-- <n-input
@@ -61,11 +60,11 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import { ref, computed, onMounted, watch } from 'vue';
-import { NDataTable, NDatePicker, NInputNumber, NInput, NPagination, NSpace, type DataTableColumn } from 'naive-ui';
+import { NDataTable, NDatePicker, NInput, NPagination, NSpace, type DataTableColumn } from 'naive-ui';
+import { computed, onMounted, ref, watch } from 'vue';
+import { type FilterFields, type GetDataFn, type Incomes, type Orders, type Sales, type Stocks } from '../api/types';
 import LineChart from '../components/LineChart.vue';
 import { MAX_API_DATE, MIN_API_DATE } from '../const/api';
-import { type FilterFields, type GetDataFn, type Incomes, type Orders, type Sales, type Stocks } from '../api/types';
 
 type Data = Incomes | Orders | Sales | Stocks;
 
@@ -86,11 +85,11 @@ const dateFilter = ref<[number, number]>([
   new Date(MAX_API_DATE).getTime(),
 ]);
 
-const filters = ref<Record<string, string | number>>({});
+const filters = ref<Record<string, string>>({});
 
 if (filterFields) {
   for (const field of filterFields) {
-    filters.value[field.code] = field.defaultValue ?? '';
+    filters.value[field.code] = field.defaultValue as string ?? '';
   }
 }
 
@@ -108,8 +107,10 @@ const filteredData = computed(() => {
       }
 
       if (filter.type === "number") {
+        // @ts-ignore
         return Number(item[filter.code]) === Number(filterVal);
       } else {
+        // @ts-ignore
         return String(item[filter.code]).includes(String(filterVal));
       }
     }) ?? true;

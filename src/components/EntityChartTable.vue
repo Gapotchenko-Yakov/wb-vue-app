@@ -52,11 +52,11 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import { ref, computed, onMounted, watch } from 'vue';
 import { NDataTable, NDatePicker, NInput, NPagination, NSpace, type DataTableColumn } from 'naive-ui';
+import { computed, onMounted, ref, watch } from 'vue';
+import { type FilterFields, type GetDataFn, type Incomes, type Orders, type Sales, type Stocks } from '../api/types';
 import LineChart from '../components/LineChart.vue';
 import { MAX_API_DATE, MIN_API_DATE } from '../const/api';
-import { type FilterFields, type GetDataFn, type Incomes, type Orders, type Sales, type Stocks } from '../api/types';
 
 type Data = Incomes | Orders | Sales | Stocks;
 
@@ -68,7 +68,7 @@ const props = defineProps<{
   nameForChart: string;
 }>();
 
-const { columns, getData, filterFields, fieldForChart, nameForChart } = props;
+const { columns, getData, fieldForChart, nameForChart } = props;
 
 const pagedData = ref<Data>([]);
 const totalData = ref<Data>([]);

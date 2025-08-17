@@ -20,12 +20,11 @@
           placeholder="Штрихкод"
           clearable
         />
-        <n-input
+        <!-- <n-input-number
           v-model:value="filters.total_price"
           placeholder="Сумма"
-          type="number"
           clearable
-        />
+        /> -->
     </n-space>
 
     <!-- График -->
@@ -50,14 +49,14 @@
 <script lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
 import { getIncomes } from '../api/incomes';
-import { NDataTable, NDatePicker, NSpace, NPagination, NInput } from 'naive-ui';
+import { NDataTable, NDatePicker, NSpace, NPagination, NInput, NInputNumber } from 'naive-ui';
 import  LineChart  from '../components/LineChart.vue';
 import dayjs from 'dayjs';
 import { MAX_API_DATE, MIN_API_DATE } from '../const/api';
 import type { Income } from '../api/types';
 
 export default {
-  components: { NDataTable, NDatePicker, NSpace, NPagination, NInput, LineChart },
+  components: { NDataTable, NDatePicker, NSpace, NPagination, NInput, NInputNumber, LineChart },
   setup() {
     const pagedIncomes = ref<Income[]>([]); // for table
     const totalIncomes = ref<Income[]>([]); // for chart
@@ -129,17 +128,33 @@ export default {
       await fetchPagedIncomes();
     })
 
-    const chartData = computed(() => ({
-      labels: totalIncomes.value.map(i => i.date),
-      datasets: [
-        {
-          label: 'Количество',
-          data: totalIncomes.value.map(i => Number(i.quantity)), // total_price из API
-          borderColor: '#3b82f6',
-          backgroundColor: '#93c5fd',
-        },
-      ],
-    }));
+    const chartData = computed(() => {
+      const grouped: Record<string, { sum: number; count: number }> = {};
+
+      totalIncomes.value.forEach(item => {
+        const month = dayjs(item.date).format('MM')
+        if (!grouped[month]) grouped[month] = { sum: 0, count:0 };
+        grouped[month].sum += Number(item.quantity);
+        grouped[month].count += 1;
+      });
+
+      const allMonths = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
+      const labels = allMonths.map(m => dayjs(m, 'MM').format('MMMM'));
+      const data = allMonths.map(m => grouped[m] ? grouped[m].sum / grouped[m].count : 0);
+
+      return {
+        labels,
+        datasets: [
+          {
+            label: 'Среднее количество по месяцам',
+            data,
+            borderColor: '#3b82f6',
+            backgroundColor: '#93c5fd',
+          },
+        ],
+      };
+    });
+
 
     return { 
       dateFilter, 

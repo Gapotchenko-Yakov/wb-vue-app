@@ -7,13 +7,36 @@ export interface FetchParams {
     [key: string]: any; // для других фильтров
 }
 
+export interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
+export interface Meta {
+    current_page: number;
+    from: number;
+    last_page: number;
+    links: PaginationLink[];
+    path: string;
+    per_page: string;
+    to: number;
+    total: number;
+}
+
+export interface Links {
+    first: string;
+    last: string;
+    prev: string | null;
+    next: string | null;
+}
+
 export interface FetchResult<T> {
     data: T[];
-    meta?: {
-        last_page: number;
-        total?: number;
-    };
+    meta: Meta;
+    links: Links;
 }
+
 
 export type GetDataFn<T> = (params: FetchParams) => Promise<FetchResult<T>>;
 
@@ -24,9 +47,9 @@ export interface Income {
     last_change_date: string;
     supplier_article: string;
     tech_size: string;
-    barcode: number;
+    barcode: string;
     quantity: number;
-    total_price: string;
+    total_price: number;
     date_close: string;
     warehouse_name: string;
     nm_id: number;
@@ -38,8 +61,8 @@ export interface Order {
     last_change_date: string;
     supplier_article: string;
     tech_size: string;
-    barcode: number;
-    total_price: string;
+    barcode: string;
+    total_price: number;
     discount_percent: number;
     warehouse_name: string;
     oblast: string;
@@ -59,8 +82,8 @@ export interface Sale {
     last_change_date: string;
     supplier_article: string;
     tech_size: string;
-    barcode: number;
-    total_price: string;
+    barcode: string;
+    total_price: number;
     discount_percent: string;
     is_supply: boolean;
     is_realization: boolean;
@@ -88,7 +111,7 @@ export interface Stock {
     last_change_date: string;
     supplier_article: string;
     tech_size: string;
-    barcode: number;
+    barcode: string;
     quantity: number;
     is_supply: boolean;
     is_realization: boolean;
@@ -101,9 +124,14 @@ export interface Stock {
     category: string;
     brand: string;
     sc_code: number;
-    price: string;
+    price: number;
     discount: string;
 }
+
+export type Incomes = Income[];
+export type Orders = Order[];
+export type Sales = Sale[];
+export type Stocks = Stock[];
 
 export interface FilterField {
     code: string;

@@ -38,11 +38,13 @@
     />
 
     <!-- Пагинация -->
-    <n-pagination
-      v-model:page="currentPage"
-      :page-count="filteredPageCount"
-      :page-size="pageSize"
-    />
+    <div style="display: flex; justify-content: center; margin-top: 16px;">
+      <n-pagination
+        v-model:page="currentPage"
+        :page-count="filteredPageCount"
+        :page-size="pageSize"
+      />
+    </div>
   </n-space>
 </template>
 
@@ -91,8 +93,6 @@ watch([filteredIncomes, pageSize], () => {
     if(currentPage.value > filteredPageCount.value) currentPage.value = filteredPageCount.value || 1;
   }
 })
-
-
 
 // Колонки таблицы соответствуют полям API
 const columns = [

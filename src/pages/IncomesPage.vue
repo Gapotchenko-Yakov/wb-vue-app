@@ -61,9 +61,9 @@ export default {
   setup() {
     const pagedIncomes = ref<Income[]>([]); // for table
     const totalIncomes = ref<Income[]>([]); // for chart
-    const dateFilter = ref([
-      new Date(MIN_API_DATE),
-      new Date(MAX_API_DATE),
+    const dateFilter = ref<[number, number]>([
+      new Date(MIN_API_DATE).getTime(),
+      new Date(MAX_API_DATE).getTime(),
     ]);
 
     const filters = ref({

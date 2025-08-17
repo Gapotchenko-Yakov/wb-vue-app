@@ -40,7 +40,7 @@
     <!-- Пагинация -->
     <n-pagination
       v-model:page="currentPage"
-      :page-count="pageCount"
+      :page-count="filteredPageCount"
       :page-size="pageSize"
     />
   </n-space>
@@ -69,18 +69,30 @@ const filters = ref({
   // total_price: '',
 })
 
+const currentPage = ref(1);
+const pageSize = ref(10);
+const apiPageCount = ref(1);
+const filteredPageCount = ref(1);
+
 const filteredIncomes = computed(() => {
-  return pagedIncomes.value.filter((item: Income) => {
+  const filteredData = pagedIncomes.value.filter((item: Income) => {
     return (!filters.value.supplier_article || String(item.supplier_article).includes(filters.value.supplier_article))
       && (!filters.value.warehouse_name || String(item.warehouse_name).includes(filters.value.warehouse_name))
       && (!filters.value.barcode || String(item.barcode).includes(filters.value.barcode))
       // && (!filters.value.total_price || item.total_price === Number(filters.value.total_price))
   })
+  return filteredData;
 })
 
-const currentPage = ref(1);
-const pageSize = ref(10);
-const pageCount = ref(1);
+watch([filteredIncomes, pageSize], () => {
+  const hasFilters = Object.values(filters.value).some(v => v !== '' && v !== null && v !== undefined);
+  if(hasFilters) {
+    filteredPageCount.value = Math.ceil(filteredIncomes.value.length / pageSize.value);
+    if(currentPage.value > filteredPageCount.value) currentPage.value = filteredPageCount.value || 1;
+  }
+})
+
+
 
 // Колонки таблицы соответствуют полям API
 const columns = [
@@ -101,7 +113,8 @@ const fetchPagedIncomes = async () => {
     dateTo: end ? dayjs(end).format('YYYY-MM-DD') : undefined,
   })
   pagedIncomes.value = result.data;
-  pageCount.value = result.meta.last_page;
+  apiPageCount.value = result.meta.last_page;
+  filteredPageCount.value = result.meta.last_page;
 }
 
 const fetchTotalIncomes = async () => {
